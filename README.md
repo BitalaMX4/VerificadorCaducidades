@@ -1,2 +1,2 @@
-# VerificadorCaducidades
-Servidio para validar lotes
+# ValidadorDeLotes
+Servicio para validar lotes
