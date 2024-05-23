@@ -1,25 +1,222 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Api / Validador de lotes</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-</head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
+    />
+  </head>
 
-<body>
+  <body>
+    <div class="container-wave">
+      <div class="row text-center mt-5">
+        <h2>Validador de lotes</h2>
+      </div>
 
-    <div class="container">
+      <!-- Wave -->
+      <div>
+        <svg
+          class="wave"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1440 100"
+          preserveAspectRatio="none"
+        >
+          <path
+            class="wavePath"
+            d="M826.337463,25.5396311 C670.970254,58.655965 603.696181,68.7870267 447.802481,35.1443383 C293.342778,1.81111414 137.33377,1.81111414 0,1.81111414 L0,150 L1920,150 L1920,1.81111414 C1739.53523,-16.6853983 1679.86404,73.1607868 1389.7826,37.4859505 C1099.70117,1.81111414 981.704672,-7.57670281 826.337463,25.5396311 Z"
+            fill="currentColor"
+          ></path>
+        </svg>
+      </div>
+
+      <!-- Cards -->
+      <div class="container mt-5">
+        <div class="card mt-5">
+            <form class="form" enctype="multipart/form-data" action="" method="POST">
+                <div><label>Obtener token</label></div>
+                <code>
+                    <br />
+                    method = "POST"<br />
+                    mandar por post un json con los datos del usuario<br />
+                    { "sub":1,"name":"Moy"} 
+                    <br />
+                    url: 'http://localhost:3004/token'<br />
+                </code>
+            </form>
+        </div>
+
+        <hr class="mt-5"/>
+
+        <div class="card mt-5">
+            <form class="form" enctype="multipart/form-data" action="" method="POST">
+                <div><label>Obtener lotes</label></div>
+                <code>
+                    <br />
+                    method = "POST"<br />
+                    mandar por post un json con los datos solicitados<br />
+                    { "id_ferrum":1000,"cantidad":"100","unidad":"BT"} 
+                    <br />
+                    url: 'http://localhost:3004/lotes'<br />
+                </code>
+            </form>
+        </div>
+
+        <hr class="mt-5"/>
+
+        <div class="card mt-5">
+            <form class="form" enctype="multipart/form-data" action="" method="POST">
+                <div><label>Test</label></div>
+                <code>
+                    <br />
+                    method = "POST"<br />
+                    mandar por post un json con los datos solicitados<br />
+                    { "cantidadSolicitada":10.5,"unidad":"MC"} 
+                    <br />
+                    url: 'http://localhost:3004/lotes'<br />
+                </code>
+            </form>
+        </div>
+
+      </div>
 
     </div>
 
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"
+    ></script>
+  </body>
 
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
-        crossorigin="anonymous"></script>
-</body>
+    .container-wave {
+      /* width: 100%; */
+      height: 100vh;
+      background: #202225;
+      position: relative;
+      color: #fff;
+      overflow: auto;
+    }
 
+    .wave {
+      display: block;
+      position: absolute;
+      width: 100%;
+      bottom: 0;
+    }
+
+    .wavePath {
+      animation: waveDividerAnimation 7s linear infinite alternate;
+      fill: rgb(63 32 76 / 44%);
+      filter: drop-shadow(0 6mm 5mm rgb(160, 0, 210));
+    }
+
+    @-webkit-keyframes waveDividerAnimation {
+      0% {
+        d: path(
+          "M826.337463,25.5396311 C670.970254,58.655965 603.696181,68.7870267 447.802481,35.1443383 C293.342778,1.81111414 137.33377,1.81111414 0,1.81111414 L0,150 L1920,150 L1920,1.81111414 C1739.53523,-16.6853983 1679.86404,73.1607868 1389.7826,37.4859505 C1099.70117,1.81111414 981.704672,-7.57670281 826.337463,25.5396311 Z"
+        );
+      }
+
+      50% {
+        d: path(
+          "M655.558582,28.4898877 C500.191373,61.6062216 422.833785,83.5422763 266.940085,49.8995879 C112.480383,16.5663637 84.0992497,8.02840272 0,44.7243294 L0,150.727527 L1920,150.727527 L1920,49.8995879 C1580.91676,-34.8808285 1438.10804,73.6768193 1148.0266,38.0019829 C857.945166,2.32714659 810.925791,-4.62644617 655.558582,28.4898877 Z"
+        );
+      }
+
+      to {
+        d: path(
+          "M842.322034,38.0019829 C686.954825,71.1183168 623.386282,53.08497 467.492582,19.4422816 C313.032879,-13.8909426 84.0992497,8.02840272 0,44.7243294 L0,150.727527 L1920,150.727527 L1920,76.8685643 C1512.23604,-35.3595639 1568.70222,67.4289432 1278.62078,31.7541069 C988.539347,-3.92072949 997.689243,4.88564905 842.322034,38.0019829 Z"
+        );
+      }
+    }
+
+    @keyframes waveDividerAnimation {
+      0% {
+        d: path(
+          "M826.337463,25.5396311 C670.970254,58.655965 603.696181,68.7870267 447.802481,35.1443383 C293.342778,1.81111414 137.33377,1.81111414 0,1.81111414 L0,150 L1920,150 L1920,1.81111414 C1739.53523,-16.6853983 1679.86404,73.1607868 1389.7826,37.4859505 C1099.70117,1.81111414 981.704672,-7.57670281 826.337463,25.5396311 Z"
+        );
+      }
+
+      50% {
+        d: path(
+          "M655.558582,28.4898877 C500.191373,61.6062216 422.833785,83.5422763 266.940085,49.8995879 C112.480383,16.5663637 84.0992497,8.02840272 0,44.7243294 L0,150.727527 L1920,150.727527 L1920,49.8995879 C1580.91676,-34.8808285 1438.10804,73.6768193 1148.0266,38.0019829 C857.945166,2.32714659 810.925791,-4.62644617 655.558582,28.4898877 Z"
+        );
+      }
+
+      to {
+        d: path(
+          "M842.322034,38.0019829 C686.954825,71.1183168 623.386282,53.08497 467.492582,19.4422816 C313.032879,-13.8909426 84.0992497,8.02840272 0,44.7243294 L0,150.727527 L1920,150.727527 L1920,76.8685643 C1512.23604,-35.3595639 1568.70222,67.4289432 1278.62078,31.7541069 C988.539347,-3.92072949 997.689243,4.88564905 842.322034,38.0019829 Z"
+        );
+      }
+    }
+
+    @-webkit-keyframes starFieldAnimation {
+      0% {
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+      }
+
+      to {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes starFieldAnimation {
+      0% {
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+      }
+
+      to {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+      }
+    }
+
+    @-webkit-keyframes arwingAnim {
+      0%,
+      to {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+      }
+
+      50% {
+        -webkit-transform: translateY(40px);
+        transform: translateY(40px);
+      }
+    }
+
+    @keyframes arwingAnim {
+      0%,
+      to {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+      }
+
+      50% {
+        -webkit-transform: translateY(40px);
+        transform: translateY(40px);
+      }
+    }
+
+    .card{
+        background-color: #282a2e;
+        border-width: 1px;
+        border-color: rgb(63 32 76 / 44%);
+        box-shadow: 2px 0px 200px 2px rgb(63 32 76 / 44%);
+    }
+  </style>
 </html>

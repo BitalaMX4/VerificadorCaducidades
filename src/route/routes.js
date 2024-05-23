@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getToken } from '../controller/controller.js';
+import { getToken, getInventory, test } from '../controller/controller.js';
 
 const router = Router();
 
@@ -9,5 +9,9 @@ router.get('/home', (req,res)=>{
 })
 // Token
 router.post('/token', getToken);
+
+router.post('/lotes', getInventory);
+
+router.post('/test', test);
 
 export default router

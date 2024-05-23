@@ -16,5 +16,5 @@ app.use((req,res,next)=>{
 })
 
 app.listen(3004, () => {
-    console.log("server ejecutandose en el puerto: 3002");
+    console.log("server ejecutandose en el puerto: 3004");
 });
