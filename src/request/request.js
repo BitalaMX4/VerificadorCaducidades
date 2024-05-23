@@ -3,8 +3,8 @@ import Service from "../service/service.js";
 
 const service = new Service();
 
-const URL_API = "http://hidalgo.no-ip.info:5610/CaducidadAlmacenes/Controllers/apiback.php";
-const URL_LOCAL = "http://192.168.16.154/Caducidad_Almacenesh/Controllers/apiback.php";
+// const URL_API = "http://hidalgo.no-ip.info:5610/CaducidadAlmacenes/Controllers/apiback.php";
+const URL_API = "http://192.168.16.154/Caducidad_Almacenesh/Controllers/apiback.php";
 
 export default class Request {
 

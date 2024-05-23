@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getToken, getInventory, test } from '../controller/controller.js';
+import { getToken, getInventory } from '../controller/controller.js';
 
 const router = Router();
 
@@ -11,7 +11,5 @@ router.get('/home', (req,res)=>{
 router.post('/token', getToken);
 
 router.post('/lotes', getInventory);
-
-router.post('/test', test);
 
 export default router
