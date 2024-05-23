@@ -222,11 +222,11 @@ export const test = async (req, res) => {
   }
 
   // Verificar si hay suficiente stock
-  if (piezasDisponibles < piezasSolicitadas) {
-    const message = "No hay suficiente stock para cumplir con el pedido";
-    res.status(200).send(message);
-    return message;
-  }
+  // if (piezasDisponibles < piezasSolicitadas) {
+  //   const message = "No hay suficiente stock para cumplir con el pedido";
+  //   res.status(200).send(message);
+  //   return message;
+  // }
 
   // Inicialización de variables para la distribución
   let cajasCompletas = 0;
@@ -265,7 +265,6 @@ export const test = async (req, res) => {
   console.log(
     "cajasCompletas::", cajasCompletas,
     "\nmediasCajas::", mediasCajas,
-    "\npiezasFaltantes:::", piezasFaltantes,
     "\nstock restante (CJ):::", stockRestante,
     "\nPiezas por caja:::", piezasPorCaja
   );
@@ -274,7 +273,6 @@ export const test = async (req, res) => {
   const respuesta = {
     cajasCompletas,
     mediasCajas,
-    piezasFaltantes,
     stockOriginal: cajasDisponibles,
     stockRestante,
   };
