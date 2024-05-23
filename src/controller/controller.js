@@ -50,9 +50,11 @@ export const getInventory = async (req, res) => {
 
     console.log(jsonUpdate);
 
-    const responseUpdate = await request.editarCantidadLotes(JSON.stringify(jsonUpdate));
+    const responseUpdate = await request.editarCantidadLotes(
+      JSON.stringify(jsonUpdate)
+    );
 
-    console.log("Respuesta update:", responseUpdate)
+    console.log("Respuesta update:", responseUpdate);
 
     res.status(200).send(noLotesString);
   } catch (error) {
@@ -198,54 +200,85 @@ const calcularCantidadesYJsonUpdate = (lotesProximosACaducar, cantidad) => {
 };
 
 export const test = async (req, res) => {
-  const { cantidadSolicitada, unidad } = req.body;
+  // Inicialización de variables
+  let piezasSolicitadas = 0,
+    piezasDisponibles = 0;
 
-  //Cantidad de stock en cajas
+  const { cantidadSolicitada, unidad, piezasPorCaja } = req.body;
+
+  // Cantidad de stock en cajas
   const cajasDisponibles = 30;
 
-  //Número de piezas por caja
-  const piezasPorCaja = 20;
-  //Se hace la conversión a medias cajas
+  // Conversión a medias cajas
   const piezasPorMediaCaja = piezasPorCaja / 2;
 
-  // Convertir las cantidades a piezas
-  const piezasSolicitadas = cantidadSolicitada * piezasPorCaja;
-  const piezasDisponibles = cajasDisponibles * piezasPorCaja;
+  // Convertir las cantidades a piezas (solo con CJ y MC)
+  if (unidad !== "PZ") {
+    piezasSolicitadas = cantidadSolicitada * piezasPorCaja;
+    piezasDisponibles = cajasDisponibles * piezasPorCaja;
+  } else {
+    piezasSolicitadas = cantidadSolicitada;
+    piezasDisponibles = cajasDisponibles * piezasPorCaja;
+  }
 
   // Verificar si hay suficiente stock
   if (piezasDisponibles < piezasSolicitadas) {
-    res.status(200).send(`No hay suficiente stock para cumplir con el pedido`);
-    return "No hay suficiente stock para cumplir con el pedido";
+    const message = "No hay suficiente stock para cumplir con el pedido";
+    res.status(200).send(message);
+    return message;
   }
 
+  // Inicialización de variables para la distribución
+  let cajasCompletas = 0;
+  let piezasFaltantes = 0;
+  let mediasCajas = 0;
+  let stockRestante = 0;
+
   // Calcular la distribución en cajas, medias cajas y piezas
-
-  let cajasCompletas;
-  let piezasFaltantes;
-  let mediasCajas;
-  let stockRestante;
-
-  switch(unidad){
+  switch (unidad) {
     case "CJ":
-      //Si se requieren cajas, se añade la variable cajasCompletas
       cajasCompletas = Math.floor(piezasSolicitadas / piezasPorCaja);
       piezasFaltantes = piezasSolicitadas % piezasPorCaja;
       mediasCajas = Math.floor(piezasFaltantes / piezasPorMediaCaja);
       piezasFaltantes = piezasFaltantes % piezasPorMediaCaja;
       break;
     case "MC":
-      //Si solo se requieren medias cajas, se añade la variable mediasCajas
       mediasCajas = Math.floor(piezasSolicitadas / piezasPorMediaCaja);
+      piezasFaltantes = piezasSolicitadas % piezasPorMediaCaja;
+      break;
+    case "PZ":
+      cajasCompletas = Math.floor(piezasSolicitadas / piezasPorCaja);
       piezasFaltantes = piezasSolicitadas % piezasPorCaja;
+      mediasCajas = Math.floor(piezasFaltantes / piezasPorMediaCaja);
       piezasFaltantes = piezasFaltantes % piezasPorMediaCaja;
       break;
   }
 
-  //Se calcula el stock restante
-  stockRestante = cajasDisponibles - cantidadSolicitada;
+  // Calcular el stock restante
+  if (unidad !== "PZ") {
+    stockRestante = cajasDisponibles - cantidadSolicitada;
+  } else {
+    stockRestante = cajasDisponibles - cajasCompletas + mediasCajas / 2;
+  }
 
-  console.log("cajasCompletas::", cajasCompletas ?? 0, "\nmediasCajas::",mediasCajas,"\npiezasFaltantes:::",piezasFaltantes, "\nstock restante (CJ):::",stockRestante);
+  // Registro de resultados
+  console.log(
+    "cajasCompletas::", cajasCompletas,
+    "\nmediasCajas::", mediasCajas,
+    "\npiezasFaltantes:::", piezasFaltantes,
+    "\nstock restante (CJ):::", stockRestante,
+    "\nPiezas por caja:::", piezasPorCaja
+  );
 
-  let respuesta = {cajasCompletas: cajasCompletas ?? 0, mediasCajas: mediasCajas, piezasFaltantes: piezasFaltantes, stockOriginal: cajasDisponibles, stockRestante: stockRestante ?? 0};
+  // Crear la respuesta
+  const respuesta = {
+    cajasCompletas,
+    mediasCajas,
+    piezasFaltantes,
+    stockOriginal: cajasDisponibles,
+    stockRestante,
+  };
+
+  // Enviar la respuesta
   res.status(200).send(respuesta);
 };
