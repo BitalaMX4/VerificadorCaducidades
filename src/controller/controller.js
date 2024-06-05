@@ -33,31 +33,65 @@ export const getInventory = async (req, res) => {
     }
 
     // const { id_ferrum, cantidad, unidad } = req.body;
-    const { id_ferrum, cantidad } = req.body;
-    const response = await request.obtenerLotes(id_ferrum);
-    const fechaActual = new Date();
+    const { id_ferrum, cantidad, id_nota, tipo_nota } = req.body;
 
-    // Llamada a las funciones refactorizadas
-    const lotesProximosACaducar = encontrarVencimientosCercanos(
-      response,
-      id_ferrum,
-      // unidad,
-      fechaActual
-    );
-    const { jsonUpdate, noLotesString } = calcularCantidadesYJsonUpdate(
-      lotesProximosACaducar,
-      cantidad
-    );
+    //===========================================================================
+    //                              Salida
+    //===========================================================================
+    if (tipo_nota == "salida") {
+      const response = await request.obtenerLotes(id_ferrum);
+      const fechaActual = new Date();
 
-    console.log(jsonUpdate);
+      const lotesProximosACaducar = encontrarVencimientosCercanos(
+        response,
+        id_ferrum,
+        // unidad,
+        fechaActual
+      );
 
-    const responseUpdate = await request.editarCantidadLotes(
-      JSON.stringify(jsonUpdate)
-    );
+      if (lotesProximosACaducar.length == 0) {
+        res.status(200).send("0");
+        return;
+      }
 
-    console.log("Respuesta update:", responseUpdate);
+      const { jsonUpdate, noLotesString } = await calcularCantidadesYJsonUpdate(
+        lotesProximosACaducar,
+        cantidad,
+        id_nota
+      );
+// console.log(jsonUpdate)
+      const responseUpdate = await request.editarCantidadLotes(
+        JSON.stringify(jsonUpdate)
+      );
 
-    res.status(200).send(noLotesString);
+      if(responseUpdate == "exito"){
+        res.status(200).send(noLotesString);
+      }else{
+        res.status(200).send("0");
+      }
+
+    } else {
+      //===========================================================================
+      //                              Entrada
+      //===========================================================================
+
+      const response = await request.obtenerRegistroNota(id_nota);
+
+      
+      const notas = response.find( (nota) => {
+        return nota.id_productoferrum.toString() === id_ferrum.toString();
+      });
+      
+      // console.log("id_registro",notas.idregistro_productos)
+      const responseUpdate = await request.editarCantidadLotesEntrada(notas.idregistro_productos, cantidad);
+
+      if(responseUpdate == "exito"){
+        res.status(200).send("1");
+      }else{
+        res.status(200).send("0");
+      }
+
+    }
   } catch (error) {
     res
       .status(error.status || 500)
@@ -128,13 +162,23 @@ const encontrarVencimientosCercanos = (
       lotes
     );
   } catch (error) {
-    throw { status: 500, message: "Error al encontrar vencimientos cercanos" };
+    throw {
+      status: 500,
+      message: "Error al encontrar vencimientos cercanos" + error,
+    };
   }
 };
 
 // Función para calcular las cantidades y preparar el objeto jsonUpdate
-const calcularCantidadesYJsonUpdate = (lotesProximosACaducar, cantidad) => {
+const calcularCantidadesYJsonUpdate = async (
+  lotesProximosACaducar,
+  cantidad,
+  id_nota
+) => {
   try {
+    let jsonUpdate = [];
+    let noLotesString = "";
+
     const lotes = [];
     const cantidadBuffer = [];
     let sum = 0;
@@ -158,7 +202,8 @@ const calcularCantidadesYJsonUpdate = (lotesProximosACaducar, cantidad) => {
         }
       }
     } else {
-      faltantes = cantidad;
+      // faltantes = cantidad;
+      return { jsonUpdate, noLotesString };
     }
 
     const idsRegistros =
@@ -168,34 +213,37 @@ const calcularCantidadesYJsonUpdate = (lotesProximosACaducar, cantidad) => {
 
     const cantidades = [];
     let bufferCantidades = cantidad;
-    let jsonUpdate = {};
 
     for (let i = 0; i < cantidadesRegistros.length; i++) {
       if (bufferCantidades - cantidadesRegistros[i] >= 0) {
         cantidades.push(0);
-        // jsonUpdate.push({
-        //   id_registro: idsRegistros[i],
-        //   cantidad: cantidades[i],
-        // });
+        jsonUpdate.push({
+          id_registro: idsRegistros[i],
+          cantidad: cantidades[i],
+          lote: lotes[i]["n_lote"],
+          id_nota: id_nota,
+        });
 
-        jsonUpdate[`${idsRegistros[i]}`] = cantidades[i];
+        // jsonUpdate[`${idsRegistros[i]}`] = cantidades[i];
       } else {
         cantidades.push(Math.abs(bufferCantidades - cantidadesRegistros[i]));
-        // jsonUpdate.push({
-        //   id_registro: idsRegistros[i],
-        //   cantidad: cantidades[i],
-        // });
+        jsonUpdate.push({
+          id_registro: idsRegistros[i],
+          cantidad: cantidades[i],
+          lote: lotes[i]["n_lote"],
+          id_nota: id_nota,
+        });
 
-        jsonUpdate[`${idsRegistros[i]}`] = cantidades[i];
+        // jsonUpdate[`${idsRegistros[i]}`] = cantidades[i];
       }
       bufferCantidades -= cantidadesRegistros[i];
     }
 
-    const noLotesString =
+    noLotesString =
       lotes.length > 0 ? lotes.map((lote) => lote.n_lote).join(", ") : "0";
 
     return { jsonUpdate, noLotesString };
   } catch (error) {
-    throw { status: 500, message: "Error al encontrar las cantidades" };
+    throw { status: 500, message: "Error al encontrar las cantidades" + error };
   }
 };
