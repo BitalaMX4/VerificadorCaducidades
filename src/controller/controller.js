@@ -59,17 +59,16 @@ export const getInventory = async (req, res) => {
         cantidad,
         id_nota
       );
-// console.log(jsonUpdate)
+      console.log( JSON.stringify(jsonUpdate));
       const responseUpdate = await request.editarCantidadLotes(
         JSON.stringify(jsonUpdate)
       );
 
-      if(responseUpdate == "exito"){
+      if (responseUpdate[0] == "exito") {
         res.status(200).send(noLotesString);
-      }else{
+      } else {
         res.status(200).send("0");
       }
-
     } else {
       //===========================================================================
       //                              Entrada
@@ -77,20 +76,23 @@ export const getInventory = async (req, res) => {
 
       const response = await request.obtenerRegistroNota(id_nota);
 
-      
-      const notas = response.find( (nota) => {
+      const { jsonUpdate } = calcularCantidadesEntrada(response, cantidad, id_ferrum);
+console.log("JSON UPDATE::::",jsonUpdate)
+      const notas = response.find((nota) => {
         return nota.id_productoferrum.toString() === id_ferrum.toString();
       });
-      
-      // console.log("id_registro",notas.idregistro_productos)
-      const responseUpdate = await request.editarCantidadLotesEntrada(notas.idregistro_productos, cantidad);
 
-      if(responseUpdate == "exito"){
+      // console.log("id_registro",notas.idregistro_productos)
+      // const responseUpdate = await request.editarCantidadLotesEntrada(
+      //   notas.idregistro_productos,
+      //   cantidad
+      // );
+
+      if (responseUpdate == "exito") {
         res.status(200).send("1");
-      }else{
+      } else {
         res.status(200).send("0");
       }
-
     }
   } catch (error) {
     res
@@ -215,11 +217,13 @@ const calcularCantidadesYJsonUpdate = async (
     let bufferCantidades = cantidad;
 
     for (let i = 0; i < cantidadesRegistros.length; i++) {
+
       if (bufferCantidades - cantidadesRegistros[i] >= 0) {
         cantidades.push(0);
         jsonUpdate.push({
           id_registro: idsRegistros[i],
-          cantidad: cantidades[i],
+          cantidad_restante: cantidades[i],
+          cantidad_saliente: parseFloat(bufferCantidades),
           lote: lotes[i]["n_lote"],
           id_nota: id_nota,
         });
@@ -229,7 +233,8 @@ const calcularCantidadesYJsonUpdate = async (
         cantidades.push(Math.abs(bufferCantidades - cantidadesRegistros[i]));
         jsonUpdate.push({
           id_registro: idsRegistros[i],
-          cantidad: cantidades[i],
+          cantidad_restante: cantidades[i],
+          cantidad_saliente: parseFloat(bufferCantidades),
           lote: lotes[i]["n_lote"],
           id_nota: id_nota,
         });
@@ -245,5 +250,123 @@ const calcularCantidadesYJsonUpdate = async (
     return { jsonUpdate, noLotesString };
   } catch (error) {
     throw { status: 500, message: "Error al encontrar las cantidades" + error };
+  }
+};
+
+const calcularCantidadesEntrada = (nota, cantidad, id_ferrum) => {
+  try{
+    let cantidadBuffer = cantidad;
+    let jsonUpdate = [];
+  
+    for (let i = 0; i < nota.length; i++) {
+
+      if (nota[i].id_productoferrum.toString() == id_ferrum.toString()) {
+        const cantidadRestar = nota[i].cantidadSalida;
+
+        if (cantidadBuffer <= 0) {
+          break;
+        } else {
+          const cantidadActualizada = cantidadBuffer - cantidadRestar;
+          console.log(cantidadActualizada)
+
+          if (cantidadActualizada <= 0) {
+            jsonUpdate.push({
+              id_registro: nota[i].idregistro_productos,
+              cantidad: cantidadBuffer,
+            });
+            break;
+          } else {
+            jsonUpdate.push({
+              id_registro: nota[i].idregistro_productos,
+              cantidad: cantidadRestar,
+            });
+          }
+
+          cantidadBuffer = cantidadActualizada;
+        }
+      }
+    }
+    return { jsonUpdate };
+  }catch(e){
+    throw { status: 500, message: "Error al encontrar las cantidades" + error };
+  }
+};
+
+
+//Opcion consultar nota
+export const get = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+
+    if (token !== "BITALA4") {
+      throw { status: 401, message: "Unauthorized" };
+    }
+
+    // const { id_ferrum, cantidad, unidad } = req.body;
+    const { id_nota, id_ferrum } = req.body;
+
+    //===========================================================================
+    //                              Salida
+    //===========================================================================
+    if (tipo_nota == "salida") {
+      const response = await request.obtenerLotes(id_ferrum);
+      const fechaActual = new Date();
+
+      const lotesProximosACaducar = encontrarVencimientosCercanos(
+        response,
+        id_ferrum,
+        // unidad,
+        fechaActual
+      );
+
+      if (lotesProximosACaducar.length == 0) {
+        res.status(200).send("0");
+        return;
+      }
+
+      const { jsonUpdate, noLotesString } = await calcularCantidadesYJsonUpdate(
+        lotesProximosACaducar,
+        cantidad,
+        id_nota
+      );
+      console.log( JSON.stringify(jsonUpdate));
+      const responseUpdate = await request.editarCantidadLotes(
+        JSON.stringify(jsonUpdate)
+      );
+
+      if (responseUpdate[0] == "exito") {
+        res.status(200).send(noLotesString);
+      } else {
+        res.status(200).send("0");
+      }
+    } else {
+      //===========================================================================
+      //                              Entrada
+      //===========================================================================
+
+      const response = await request.obtenerRegistroNota(id_nota);
+
+      const { jsonUpdate } = calcularCantidadesEntrada(response, cantidad, id_ferrum);
+console.log("JSON UPDATE::::",jsonUpdate)
+      const notas = response.find((nota) => {
+        return nota.id_productoferrum.toString() === id_ferrum.toString();
+      });
+
+      // console.log("id_registro",notas.idregistro_productos)
+      // const responseUpdate = await request.editarCantidadLotesEntrada(
+      //   notas.idregistro_productos,
+      //   cantidad
+      // );
+
+      if (responseUpdate == "exito") {
+        res.status(200).send("1");
+      } else {
+        res.status(200).send("0");
+      }
+    }
+  } catch (error) {
+    res
+      .status(error.status || 500)
+      .send(error.message || "Internal Server Error");
   }
 };

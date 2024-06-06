@@ -39,8 +39,9 @@ export default class Request {
 
     try {
       let response = await service.fetchApi(URL_API, formData);
-
-      if (typeof response.data == "string") {
+      console.log(jsonObjects)
+console.log(response)
+      if (response.data) {
         //Hecho
         return response.data;
       } else {
