@@ -107,4 +107,30 @@ console.log(response)
     }
   }
 
+  async obtenerRegistroNotaConProducto(id_nota, id_ferrum) {
+    
+    const formData = new FormData();
+    formData.append("opcion", "14");
+    formData.append("id_nota", id_nota);
+    formData.append("id_ferrum", id_ferrum);
+
+    try {
+      let response = await service.fetchApi(URL_API, formData);
+
+      if (typeof response.data == "object") {
+        //Hecho
+        return response.data;
+      } else {
+        // Lanzar un error 500
+        throw { status: response.status, message: response.statusText };
+      }
+    } catch (error) {
+      // Capturar y lanzar errores con el código de estado y el mensaje apropiados
+      throw {
+        status: error.status || 500,
+        message: error.message || "Internal Server Error",
+      };
+    }
+  }
+
 }

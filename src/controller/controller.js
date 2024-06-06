@@ -294,7 +294,7 @@ const calcularCantidadesEntrada = (nota, cantidad, id_ferrum) => {
 
 
 //Opcion consultar nota
-export const get = async (req, res) => {
+export const getNotaProducto = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
 
@@ -305,65 +305,10 @@ export const get = async (req, res) => {
     // const { id_ferrum, cantidad, unidad } = req.body;
     const { id_nota, id_ferrum } = req.body;
 
-    //===========================================================================
-    //                              Salida
-    //===========================================================================
-    if (tipo_nota == "salida") {
-      const response = await request.obtenerLotes(id_ferrum);
-      const fechaActual = new Date();
+    const response = await request.obtenerRegistroNotaConProducto(id_nota, id_ferrum);
+    const noLotesString = response.length > 0 ? response.map((lote) => response.n_lote).join(", ") : "0";
 
-      const lotesProximosACaducar = encontrarVencimientosCercanos(
-        response,
-        id_ferrum,
-        // unidad,
-        fechaActual
-      );
-
-      if (lotesProximosACaducar.length == 0) {
-        res.status(200).send("0");
-        return;
-      }
-
-      const { jsonUpdate, noLotesString } = await calcularCantidadesYJsonUpdate(
-        lotesProximosACaducar,
-        cantidad,
-        id_nota
-      );
-      console.log( JSON.stringify(jsonUpdate));
-      const responseUpdate = await request.editarCantidadLotes(
-        JSON.stringify(jsonUpdate)
-      );
-
-      if (responseUpdate[0] == "exito") {
-        res.status(200).send(noLotesString);
-      } else {
-        res.status(200).send("0");
-      }
-    } else {
-      //===========================================================================
-      //                              Entrada
-      //===========================================================================
-
-      const response = await request.obtenerRegistroNota(id_nota);
-
-      const { jsonUpdate } = calcularCantidadesEntrada(response, cantidad, id_ferrum);
-console.log("JSON UPDATE::::",jsonUpdate)
-      const notas = response.find((nota) => {
-        return nota.id_productoferrum.toString() === id_ferrum.toString();
-      });
-
-      // console.log("id_registro",notas.idregistro_productos)
-      // const responseUpdate = await request.editarCantidadLotesEntrada(
-      //   notas.idregistro_productos,
-      //   cantidad
-      // );
-
-      if (responseUpdate == "exito") {
-        res.status(200).send("1");
-      } else {
-        res.status(200).send("0");
-      }
-    }
+    res.status(200).send(noLotesString);
   } catch (error) {
     res
       .status(error.status || 500)
