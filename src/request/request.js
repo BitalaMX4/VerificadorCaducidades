@@ -5,7 +5,7 @@ const service = new Service();
 
 // const URL_API = "http://hidalgo.no-ip.info:5610/CaducidadAlmacenes/Controllers/apiback.php";
 const URL_API =
-  "http://192.168.1.80/Caducidad_Almacenesh/Controllers/apiback.php";
+  "http://localhost:8080/Web/Caducidad_Almacenesh/Controllers/apiback.php";
 
 export default class Request {
   async obtenerLotes(idferrum) {
@@ -110,9 +110,9 @@ console.log(response)
   async obtenerRegistroNotaConProducto(id_nota, id_ferrum) {
     
     const formData = new FormData();
-    formData.append("opcion", "14");
+    formData.append("opcion", "16");
     formData.append("id_nota", id_nota);
-    formData.append("id_ferrum", id_ferrum);
+    formData.append("id_articulo", id_ferrum);
 
     try {
       let response = await service.fetchApi(URL_API, formData);

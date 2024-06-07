@@ -294,7 +294,7 @@ const calcularCantidadesEntrada = (nota, cantidad, id_ferrum) => {
 
 
 //Opcion consultar nota
-export const getNotaProducto = async (req, res) => {
+export const getLotesPorNotaProducto = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
 
@@ -306,8 +306,13 @@ export const getNotaProducto = async (req, res) => {
     const { id_nota, id_ferrum } = req.body;
 
     const response = await request.obtenerRegistroNotaConProducto(id_nota, id_ferrum);
-    const noLotesString = response.length > 0 ? response.map((lote) => response.n_lote).join(", ") : "0";
+    console.log(response)
 
+    const noLotesString = response.length > 0 
+    ? [...new Set(response.map((lote) => lote.n_lote))].join(", ") 
+    : "0";
+
+  console.log(noLotesString)
     res.status(200).send(noLotesString);
   } catch (error) {
     res
